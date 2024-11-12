@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Place - BestPoint</title>
+</head>
+
+<body>
+  <h1>Update Place</h1>
+  <form action="/places/<%= place._id %>?_method=PUT" method="POST">
+    <div>
+      <label for="description">Description</label>
+      <input type="text" name="place[description]" id="location" value="<%= place.description %>">
+    </div>
+    <div>
+      <label for="price">Price</label>
+      <input type="text" name="place[price]" id="price" value="<%= place.price %>">
+    </div>
+    <button type="submit">Save</button>
+  </form>
+</body>
+
+</html>
