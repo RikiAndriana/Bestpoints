@@ -36,9 +36,20 @@ router.post(
     },
   }),
   (req, res) => {
+    console.log(req.user);
+
     req.flash("success_msg", "You are logged in");
     res.redirect("/places");
   }
 );
+router.post("/logout", (req, res) => {
+  req.logout(function (err) {
+    if (err) {
+      return next();
+    }
+    req.flash("success_msg", "You are logged out");
+    res.redirect("/login");
+  });
+});
 
 module.exports = router;
