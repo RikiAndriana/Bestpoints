@@ -6,6 +6,10 @@ const mongoose = require("mongoose");
 const path = require("path");
 const methodOverride = require("method-override");
 const ErrorHandler = require("./utils/errorHandler");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+
+const User = require("./models/user");
 
 const app = express();
 
@@ -40,6 +44,12 @@ app.use(
   })
 );
 app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 app.use((req, res, next) => {
   res.locals.success_msg = req.flash("success_msg");
   res.locals.error_msg = req.flash("error_msg");
@@ -50,12 +60,13 @@ app.listen(3000, () => {
   console.log("server is running on http://localhost:3000");
 });
 
-app.use("/places", require("./routes/places"));
-app.use("/places/:place_id/reviews", require("./routes/reviews"));
-
 app.get("/", (req, res) => {
   res.render("home");
 });
+
+app.use("/", require("./routes/auth"));
+app.use("/places", require("./routes/places"));
+app.use("/places/:place_id/reviews", require("./routes/reviews"));
 
 app.all("*", (req, res, next) => {
   next(new ErrorHandler());
