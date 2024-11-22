@@ -26,13 +26,16 @@ router.post(
   isValidObjectId("/places"),
   validateReview,
   wrapAsync(async (req, res) => {
+    const { place_id } = req.params;
     const review = new Review(req.body.review);
-    const place = await Place.findById(req.params.place_id);
-    place.reviews.push(review);
+    review.author = place_id;
     await review.save();
+
+    const place = await Place.findById(place_id);
+    place.reviews.push(review);
     await place.save();
     req.flash("success_msg", "Review added successfully");
-    res.redirect(`/places/${req.params.place_id}`);
+    res.redirect(`/places/${place_id}`);
   })
 );
 

@@ -8,6 +8,10 @@ const placeSchema = new Schema({
   description: String,
   location: String,
   image: String,
+  author: {
+    type: mongoose.Types.ObjectId,
+    ref: "User",
+  },
   reviews: [
     {
       type: mongoose.Types.ObjectId,

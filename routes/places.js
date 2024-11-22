@@ -5,6 +5,7 @@ const wrapAsync = require("../utils/wrapAsync");
 const ErrorHandler = require("../utils/errorHandler");
 const isValidObjectId = require("../middlewares/isValidObjectId");
 const isAuth = require("../middlewares/isAuth");
+const { isAuthorPlace } = require("../middlewares/isAuthor");
 
 const router = express.Router();
 
@@ -30,7 +31,15 @@ router.get(
   isValidObjectId("/places"),
   wrapAsync(async (req, res) => {
     const { id } = req.params;
-    const place = await Place.findById(id).populate("reviews");
+    const place = await Place.findById(req.params.id)
+      .populate({
+        path: "reviews",
+        populate: {
+          path: "author",
+        },
+      })
+      .populate("author");
+    console.log(place);
     res.render("places/show", { place });
   })
 );
@@ -50,6 +59,7 @@ router.post(
 router.get(
   "/:id/edit",
   isAuth,
+  isAuthorPlace,
   isValidObjectId("/places"),
   wrapAsync(async (req, res) => {
     const { id } = req.params;
@@ -60,6 +70,7 @@ router.get(
 router.put(
   "/:id",
   isAuth,
+  isAuthorPlace,
   isValidObjectId("/places"),
   validatePlace,
   wrapAsync(async (req, res) => {
@@ -72,6 +83,7 @@ router.put(
 router.delete(
   "/:id",
   isAuth,
+  isAuthorPlace,
   isValidObjectId("/places"),
   wrapAsync(async (req, res) => {
     await Place.findByIdAndDelete(req.params.id);
