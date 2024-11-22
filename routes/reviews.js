@@ -7,6 +7,7 @@ const ErrorHandler = require("../utils/errorHandler");
 const { reviewSchema } = require("../schemas/review");
 const isValidObjectId = require("../middlewares/isValidObjectId");
 const isAuth = require("../middlewares/isAuth");
+const { isAuthorReview } = require("../middlewares/isAuthor");
 
 const router = express.Router({ mergeParams: true });
 
@@ -28,7 +29,7 @@ router.post(
   wrapAsync(async (req, res) => {
     const { place_id } = req.params;
     const review = new Review(req.body.review);
-    review.author = place_id;
+    review.author = req.user._id;
     await review.save();
 
     const place = await Place.findById(place_id);
@@ -42,6 +43,7 @@ router.post(
 router.delete(
   "/:review_id",
   isAuth,
+  isAuthorReview,
   isValidObjectId("/places"),
   wrapAsync(async (req, res) => {
     const { place_id, review_id } = req.params;
