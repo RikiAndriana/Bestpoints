@@ -4,7 +4,7 @@ const isValidObjectId = require("../middlewares/isValidObjectId");
 const isAuth = require("../middlewares/isAuth");
 const { isAuthorReview } = require("../middlewares/isAuthor");
 const ReviewController = require("../controllers/reviews");
-const { validateReview } = require("../middlewares/isValidObjectId");
+const { validateReview } = require("../middlewares/validatorServer");
 
 const router = express.Router({ mergeParams: true });
 
