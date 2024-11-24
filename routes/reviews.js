@@ -1,23 +1,12 @@
 const express = require("express");
 const wrapAsync = require("../utils/wrapAsync");
-const ErrorHandler = require("../utils/errorHandler");
-const { reviewSchema } = require("../schemas/review");
 const isValidObjectId = require("../middlewares/isValidObjectId");
 const isAuth = require("../middlewares/isAuth");
 const { isAuthorReview } = require("../middlewares/isAuthor");
 const ReviewController = require("../controllers/reviews");
+const { validateReview } = require("../middlewares/isValidObjectId");
 
 const router = express.Router({ mergeParams: true });
-
-const validateReview = (req, res, next) => {
-  const { error } = reviewSchema.validate(req.body);
-  if (error) {
-    const msg = error.details.map((el) => el.message).join(",");
-    return next(new ErrorHandler(msg, 400));
-  } else {
-    next();
-  }
-};
 
 router.post(
   "/",
