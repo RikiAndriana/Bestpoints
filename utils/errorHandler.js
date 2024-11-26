@@ -1,4 +1,4 @@
-class ErrorHandler extends Error {
+class ExpressError extends Error {
   constructor(message, statusCode) {
     super();
     this.message = message;
@@ -6,4 +6,4 @@ class ErrorHandler extends Error {
   }
 }
 
-module.exports = ErrorHandler;
+module.exports = ExpressError;
