@@ -5,11 +5,17 @@
     <div class="card">
       <div id="carouselExampleIndicators" class="carousel slide">
         <div class="carousel-inner">
+          <% if (place.images.length) { %>
           <% place.images.forEach((image,index) => {%>
           <div class="carousel-item <%= index === 0 ?'active':'' %>">
             <img src="/images/<%= image.filename %>" class="d-block w-100" alt="<%= place.title %>">
           </div>
           <%}) %>
+          <% } else{%>
+          <div class="carousel-item <%= index === 0 ?'active':'' %>">
+            <img src="https://images.unsplash.com/photo-1542909359-544eb870c007?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="d-block w-100" alt="<%= place.title %>">
+          </div>
+          <% } %>
         </div>
         <% if (place.images.length > 1) { %>
         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
@@ -42,7 +48,10 @@
     </div>
   </div>
 
+
   <div class="col-6">
+    <div style="width: 640px; height: 480px; margin-bottom: 5%;" id="mapContainer"></div>
+
     <% if (currentUser) { %>
     <h3>Leave a review</h3>
     <form action="/places/<%= place._id %>/reviews" method="POST" class="validated-form mb-3" novalidate>
@@ -95,3 +104,63 @@
 
   </div>
 </div>
+
+
+<script>
+  const place = <%- JSON.stringify(place) %>;
+  const placeLocation = {
+    lng: place.geometry.coordinates[0],
+    lat: place.geometry.coordinates[1]
+  }
+</script>
+<script>
+  function addMarker(group, coordinates, html) {
+    const svgMarkup = `<svg width="50px" height="50px" viewBox="0 0 24 24" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/">
+        <g transform="translate(0 -1028.4)">
+          <path d="m12 0c-4.4183 2.3685e-15 -8 3.5817-8 8 0 1.421 0.3816 2.75 1.0312 3.906 0.1079 0.192 0.221 0.381 0.3438 0.563l6.625 11.531 6.625-11.531c0.102-0.151 0.19-0.311 0.281-0.469l0.063-0.094c0.649-1.156 1.031-2.485 1.031-3.906 0-4.4183-3.582-8-8-8zm0 4c2.209 0 4 1.7909 4 4 0 2.209-1.791 4-4 4-2.2091 0-4-1.791-4-4 0-2.2091 1.7909-4 4-4z" transform="translate(0 1028.4)" fill="#e74c3c" />
+          <path d="m12 3c-2.7614 0-5 2.2386-5 5 0 2.761 2.2386 5 5 5 2.761 0 5-2.239 5-5 0-2.7614-2.239-5-5-5zm0 2c1.657 0 3 1.3431 3 3s-1.343 3-3 3-3-1.3431-3-3 1.343-3 3-3z" transform="translate(0 1028.4)" fill="#c0392b" />
+        </g>
+      </svg>`;
+    const icon = new H.map.Icon(svgMarkup);
+    const marker = new H.map.Marker(placeLocation, {
+      icon
+    });
+    marker.setData(html);
+    group.addObject(marker);
+  }
+
+  function addInfoBubble(map) {
+    const group = new H.map.Group();
+
+    map.addObject(group);
+
+    group.addEventListener('tap', (e) => {
+      const bubble = new H.ui.InfoBubble(e.target.getGeometry(), {
+        content: e.target.getData(),
+      })
+      ui.addBubble(bubble)
+    }, false)
+
+    addMarker(group, placeLocation, `<div>${place.title}</div>` + `<div>${place.description}</div>`)
+  }
+
+  // Initialize the platform object
+  const platform = new H.service.Platform({
+    'apikey': 'LO8F-iCczpo_qaojN6EbFoq5A42QeGqde5_HmKJh4VY'
+  });
+
+  // Obtain the default map types from the platform object
+  const defaultLayers = platform.createDefaultLayers();
+
+  // Instantiate (and display) the map
+  const map = new H.Map(
+    document.getElementById('mapContainer'),
+    defaultLayers.vector.normal.map, {
+      zoom: 10,
+      center: placeLocation
+    });
+
+  const ui = H.ui.UI.createDefault(map, defaultLayers, 'en-US');
+  const behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+  addInfoBubble(map);
+</script>

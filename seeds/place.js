@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const Place = require("../models/place");
+const { geometry } = require("../utils/hereMaps");
+
 mongoose
   .connect("mongodb://127.0.0.1/bestpoints")
   .then((result) => {
@@ -47,15 +49,6 @@ async function seedPlaces() {
         "https://images.unsplash.com/photo-1731326290665-0b1999f88304?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
-      title: "Malioboro",
-      price: 0,
-      description:
-        "Jalan utama di Yogyakarta dengan berbagai toko dan kuliner khas",
-      location: "Jl. Malioboro, Yogyakarta City, Special Region of Yogyakarta",
-      image:
-        "https://images.unsplash.com/photo-1731176497854-f9ea4dd52eb6?q=80&w=1032&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
       title: "Pantai Tanjung Aan",
       price: 10000,
       description:
@@ -63,15 +56,6 @@ async function seedPlaces() {
       location: "Pantai Tanjung Aan, Lombok, West Nusa Tenggara",
       image:
         "https://images.unsplash.com/photo-1730304538482-5fa524c79411?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      title: "Bukit Bintang",
-      price: 0,
-      description: "Kawasan perbelanjaan dan hiburan di Kuala Lumpur, Malaysia",
-      location:
-        "Bukit Bintang, Kuala Lumpur, Federal Territory of Kuala Lumpur, Malaysia",
-      image:
-        "https://images.unsplash.com/photo-1731000549553-d79116144be8?q=80&w=1083&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       title: "Candi Prambanan",
@@ -110,15 +94,6 @@ async function seedPlaces() {
         "https://plus.unsplash.com/premium_photo-1673491310200-739536190566?q=80&w=1159&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
-      title: "Candi Borobudur",
-      price: 25000,
-      description:
-        "Candi Buddha terbesar di dunia yang terletak di Magelang, Jawa Tengah",
-      location: "Candi Borobudur, Borobudur, Magelang, Central Java",
-      image:
-        "https://images.unsplash.com/photo-1726853546098-380e29da9e31?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
       title: "Pulau Komodo",
       price: 5000,
       description:
@@ -146,33 +121,6 @@ async function seedPlaces() {
         "https://images.unsplash.com/photo-1715323866146-547135db1241?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
-      title: "Pulau Weh",
-      price: 50000,
-      description:
-        "Pulau yang terletak di ujung barat Indonesia dengan keindahan bawah laut yang luar biasa",
-      location: "Pulau Weh, Sabang, Aceh",
-      image:
-        "https://images.unsplash.com/photo-1670770216891-47d7442010cb?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      title: "Taman Safari Indonesia",
-      price: 18000,
-      description:
-        "Taman hiburan keluarga dengan berbagai satwa liar di Cisarua, Bogor",
-      location: "Taman Safari Indonesia, Cisarua, West Java",
-      image:
-        "https://images.unsplash.com/photo-1669873499012-38b03096f011?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      title: "Gunung Merbabu",
-      price: 5000,
-      description:
-        "Gunung yang terletak di Jawa Tengah dengan pemandangan matahari terbit yang indah",
-      location: "Gunung Merbabu, Central Java",
-      image:
-        "https://plus.unsplash.com/premium_photo-1664126002668-e9d01565b3cb?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
       title: "Pulau Lombok",
       price: 0,
       description:
@@ -192,16 +140,28 @@ async function seedPlaces() {
     },
   ];
   try {
-    const newPlace = places.map((place) => {
-      return {
-        ...place,
-        author: "673e7f65b0a95f1c6bcf31dc",
-        images: {
-          url: `public\\images\\image-1732585816490-997125198.jpg`,
-          filename: `image-1732585816490-997125198.jpg`,
-        },
-      };
-    });
+    const newPlace = await Promise.all(
+      places.map(async (place) => {
+        let geoData = await geometry(place.location);
+
+        if (!geoData) {
+          console.log(place.title + "not exist");
+          geoData = {
+            type: "Point",
+            coordinates: [116.32883, -8.90952],
+          };
+        }
+        return {
+          ...place,
+          author: "673e7f65b0a95f1c6bcf31dc",
+          images: {
+            url: `public\\images\\image-1732585816490-997125198.jpg`,
+            filename: `image-1732585816490-997125198.jpg`,
+          },
+          geometry: geoData,
+        };
+      })
+    );
     await Place.deleteMany({});
     await Place.insertMany(newPlace);
     console.log("Data berhasil disimpan");
